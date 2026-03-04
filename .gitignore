@@ -1,0 +1,5 @@
+COMMANDS.md
+.env
+*.pyc
+__pycache__/
+.dbt/
