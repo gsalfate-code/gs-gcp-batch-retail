@@ -1,0 +1,29 @@
+retail:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: oauth
+      project: gs-batch-retail
+      dataset: bronze
+      location: US
+      threads: 1
+      timeout_seconds: 300
+
+    staging:
+      type: bigquery
+      method: oauth
+      project: gs-batch-retail
+      dataset: bronze
+      location: US
+      threads: 2
+      timeout_seconds: 300
+
+    prod:
+      type: bigquery
+      method: oauth
+      project: gs-batch-retail
+      dataset: bronze
+      location: US
+      threads: 4
+      timeout_seconds: 300

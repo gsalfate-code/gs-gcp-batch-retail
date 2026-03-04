@@ -3,3 +3,7 @@ COMMANDS.md
 *.pyc
 __pycache__/
 .dbt/
+dbt/dbt_packages/
+dbt/target/
+dbt/logs/
+dbt/.user.yml
