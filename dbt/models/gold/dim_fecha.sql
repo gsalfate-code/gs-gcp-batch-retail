@@ -11,7 +11,7 @@ WITH fechas AS (
     SELECT
         DATE_ADD(DATE '2024-01-01', INTERVAL n DAY) AS fecha
     FROM
-        UNNEST(GENERATE_ARRAY(0, 730)) AS n
+        UNNEST(GENERATE_ARRAY(0, 1095)) AS n
 ),
 
 final AS (

@@ -1,0 +1,71 @@
+version: 2
+
+models:
+  - name: dim_producto
+    description: "Product dimension — unique products with surrogate key"
+    columns:
+      - name: producto_sk
+        description: "Surrogate key"
+        tests:
+          - not_null
+          - unique
+      - name: producto_nombre
+        tests:
+          - not_null
+      - name: producto_categoria
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['LACTEOS', 'PANADERIA', 'BEBIDAS', 'LIMPIEZA', 'SNACKS']
+
+  - name: dim_sucursal
+    description: "Branch dimension — 10 Santiago branches"
+    columns:
+      - name: sucursal_sk
+        tests:
+          - not_null
+          - unique
+      - name: sucursal_nombre
+        tests:
+          - not_null
+
+  - name: dim_fecha
+    description: "Date dimension — 2024 to 2027"
+    columns:
+      - name: fecha_sk
+        tests:
+          - not_null
+          - unique
+      - name: fecha
+        tests:
+          - not_null
+
+  - name: fact_ventas
+    description: "Sales fact table — Star Schema central table"
+    columns:
+      - name: venta_id
+        tests:
+          - not_null
+          - unique
+      - name: producto_sk
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_producto')
+                field: producto_sk
+      - name: sucursal_sk
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_sucursal')
+                field: sucursal_sk
+      - name: fecha_sk
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_fecha')
+                field: fecha_sk

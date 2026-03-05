@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: stg_ventas
+    description: "Cleaned and PII-masked sales data — Ley 21.719 compliant"
+    columns:
+      - name: venta_id
+        description: "Unique sale identifier — deduplicated"
+        tests:
+          - not_null
+          - unique
+      - name: fecha
+        description: "Sale date as DATE type"
+        tests:
+          - not_null
+      - name: total
+        description: "Total sale amount — must be positive"
+        tests:
+          - not_null
+      - name: cantidad
+        description: "Quantity sold — must be positive"
+        tests:
+          - not_null
+      - name: nombre_cliente
+        description: "Masked client name — Ley 21.719"
+        tests:
+          - not_null
+      - name: rut_cliente
+        description: "Hashed RUT — Ley 21.719"
+        tests:
+          - not_null

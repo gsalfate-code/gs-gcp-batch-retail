@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: stg_ventas_raw
+    description: "Raw sales data loaded from GCS Parquet files into BigQuery Bronze"
+    columns:
+      - name: venta_id
+        description: "Unique sale identifier"
+        tests:
+          - not_null
+          - unique
+      - name: fecha
+        description: "Sale date"
+        tests:
+          - not_null
+      - name: total
+        description: "Total sale amount in CLP"
+        tests:
+          - not_null
+      - name: sucursal
+        description: "Branch name"
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Santiago Centro', 'Providencia', 'Las Condes', 'Maipu',
+                         'La Florida', 'Pudahuel', 'Nunoa', 'San Bernardo',
+                         'Quilicura', 'Puente Alto']
