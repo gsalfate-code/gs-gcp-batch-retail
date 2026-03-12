@@ -5,9 +5,11 @@ name: CD — Continuous Deployment
 on:
   push:
     branches: [main]
+    paths:
+      - "ingestion/**"   # Solo redespliega Cloud Function si cambia código de ingesta
   schedule:
     - cron: "0 6 * * *"  # 02:00 AM Santiago (UTC-4) = 06:00 UTC
-  workflow_dispatch:      # Permite dispararlo manualmente desde GitHub
+  workflow_dispatch:      # Ejecución manual para emergencias
 
 jobs:
   deploy:
