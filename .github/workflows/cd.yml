@@ -1,0 +1,63 @@
+name: CD — Continuous Deployment
+
+# Se dispara en cada push a main
+# Despliega cambios y corre dbt en producción
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Deploy & Run dbt
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Descarga el código del repo
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Instala Python 3.11
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # 3. Instala dbt con el adaptador de BigQuery
+      - name: Install dbt
+        run: pip install dbt-bigquery==1.9.0
+
+      # 4. Instala los paquetes dbt
+      - name: Install dbt packages
+        working-directory: dbt
+        run: dbt deps
+
+      # 5. Autentica con GCP — usa el mismo Service Account que Cloud Functions
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      # 6. Corre dbt en producción — transforma Bronze → Silver → Gold
+      - name: dbt run (prod)
+        working-directory: dbt
+        run: dbt run --target prod
+
+      # 7. Valida calidad de datos — si falla, el deploy falla
+      # Esto protege producción de datos incorrectos
+      - name: dbt test (prod)
+        working-directory: dbt
+        run: dbt test --target prod
+
+      # 8. Redespliega Cloud Function con el código actualizado
+      - name: Deploy Cloud Function
+        uses: google-github-actions/deploy-cloud-functions@v3
+        with:
+          name: batch-retail-pipeline
+          region: us-central1
+          runtime: python311
+          entry_point: pipeline_trigger
+          source_dir: ingestion/
+          service_account: cf-batch-retail@gs-batch-retail.iam.gserviceaccount.com
+          environment_variables: |-
+            PROJECT_ID=gs-batch-retail
+            BUCKET_NAME=gs-batch-retail-bronze

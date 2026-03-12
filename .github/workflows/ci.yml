@@ -1,0 +1,49 @@
+name: CI — Continuous Integration
+
+# Se dispara en cada Pull Request hacia main
+# Valida que los cambios no rompen el pipeline antes de mergear
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  dbt-test:
+    name: dbt Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Descarga el código del repo
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Instala Python 3.11 — misma versión que Cloud Functions
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # 3. Instala dbt con el adaptador de BigQuery
+      - name: Install dbt
+        run: pip install dbt-bigquery==1.9.0
+
+      # 4. Instala los paquetes dbt definidos en packages.yml (dbt_utils)
+      - name: Install dbt packages
+        working-directory: dbt
+        run: dbt deps
+
+      # 5. Autentica con GCP usando el Service Account guardado en GitHub Secrets
+      # GCP_SA_KEY es un JSON de credenciales — nunca se sube al repo
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      # 6. Corre dbt compile — verifica que el SQL es válido sin ejecutar nada
+      - name: dbt compile
+        working-directory: dbt
+        run: dbt compile --target dev
+
+      # 7. Corre los 32 tests sobre los datos actuales en BigQuery
+      - name: dbt test
+        working-directory: dbt
+        run: dbt test --target dev
