@@ -66,3 +66,25 @@ jobs:
           environment_variables: |-
             PROJECT_ID=gs-batch-retail
             BUCKET_NAME=gs-batch-retail-bronze
+
+      # 9. Notificación de éxito por email
+      - name: Notify success
+        if: success()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.GMAIL_SENDER }}
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: "✅ gs-gcp-batch-retail — Pipeline OK"
+          to: gsalfate.gcp@gmail.com, gsalfate.code@gmail.com
+          from: ${{ secrets.GMAIL_SENDER }}
+          body: |
+            El pipeline de batch retail completó exitosamente.
+            
+            - dbt run (prod): OK
+            - dbt test (prod): OK
+            - Cloud Function deploy: OK
+            
+            Repositorio: https://github.com/gsalfate-code/gs-gcp-batch-retail
+            Dashboard: https://lookerstudio.google.com/reporting/4f604ddb-b113-45b1-8f53-f900b24261f3
