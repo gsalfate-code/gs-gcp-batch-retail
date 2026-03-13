@@ -8,10 +8,13 @@ Simulates daily sales data for 10 Santiago branches, transforms it through a Med
 ![BigQuery](https://img.shields.io/badge/BigQuery-GCP-4285F4?style=flat&logo=googlebigquery&logoColor=white)
 ![CD](https://github.com/gsalfate-code/gs-gcp-batch-retail/actions/workflows/cd.yml/badge.svg)
 
+**[→ Live Dashboard](https://lookerstudio.google.com/reporting/4f604ddb-b113-45b1-8f53-f900b24261f3)** — updated daily at 02:00 AM Santiago time.
+
 ---
 
 ## Architecture
-```
+
+\`\`\`
 Cloud Scheduler (02:00 AM)
         │
         ▼
@@ -38,7 +41,7 @@ Cloud Function ──► GCS Bronze (Parquet)
                         │
                         ▼
                Looker Studio Dashboard
-```
+\`\`\`
 
 ## Tech Stack
 
@@ -56,16 +59,17 @@ Cloud Function ──► GCS Bronze (Parquet)
 
 **Bronze** — External Table pointing to GCS. Raw data, no transformations. PII visible only at this layer.
 
-**Silver** — Deduplicated, typed, and cleaned. Client names masked and RUTs hashed via `mask_pii()` macro — compliant with Chilean Ley 21.719.
+**Silver** — Deduplicated, typed, and cleaned. Client names masked and RUTs hashed via \`mask_pii()\` macro — compliant with Chilean Ley 21.719.
 
 **Gold** — Star Schema optimized for analytics. Partitioned and clustered fact table joined to three dimension tables.
 
 ## Data Quality
 
-32 dbt tests across all layers — `not_null`, `unique`, `accepted_values`, and `relationships` between fact and dimensions. Pipeline stops automatically if any test fails.
+32 dbt tests across all layers — \`not_null\`, \`unique\`, \`accepted_values\`, and \`relationships\` between fact and dimensions. Pipeline stops automatically if any test fails.
 
 ## How to Run
-```bash
+
+\`\`\`bash
 # Generate and upload daily data
 python ingestion/simulator.py
 
@@ -73,10 +77,11 @@ python ingestion/simulator.py
 cd dbt
 dbt run --target dev
 dbt test --target dev
-```
+\`\`\`
 
 ## Project Structure
-```
+
+\`\`\`
 gs-gcp-batch-retail/
 ├── ingestion/
 │   ├── main.py          # Cloud Functions entry point
@@ -95,7 +100,7 @@ gs-gcp-batch-retail/
 └── .github/workflows/
     ├── ci.yml           # dbt tests on pull requests
     └── cd.yml           # dbt prod + deploy on schedule
-```
+\`\`\`
 
 ## Key Decisions
 
