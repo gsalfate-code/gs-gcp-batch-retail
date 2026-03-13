@@ -6,7 +6,6 @@ Simulates daily sales data for 10 Santiago branches, transforms it through a Med
 ![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat&logo=python&logoColor=white)
 ![dbt](https://img.shields.io/badge/dbt-1.9-FF694B?style=flat&logo=dbt&logoColor=white)
 ![BigQuery](https://img.shields.io/badge/BigQuery-GCP-4285F4?style=flat&logo=googlebigquery&logoColor=white)
-![CI](https://github.com/gsalfate-code/gs-gcp-batch-retail/actions/workflows/ci.yml/badge.svg)
 ![CD](https://github.com/gsalfate-code/gs-gcp-batch-retail/actions/workflows/cd.yml/badge.svg)
 
 ---
