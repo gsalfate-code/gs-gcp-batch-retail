@@ -1,7 +1,14 @@
 # gs-gcp-batch-retail
 
-Batch data pipeline for retail inventory management built on GCP.
-Simulates daily sales data for 10 Santiago branches, transforms it through a Medallion architecture, and serves a Star Schema to Looker Studio.
+## The Problem
+
+Branch managers had no visibility into daily sales until the following day. Decisions on replenishment, promotions, and staff allocation were made with yesterday's data — or older, if the report arrived late. With 10 branches across Santiago generating hundreds of transactions daily, the gap between what happened and what was known was always at least 24 hours.
+
+## The Solution
+
+A pipeline that consolidates sales from all 10 branches every night and delivers them to a dashboard by 6 AM. The store manager opens it and instantly sees how much each branch sold, which categories led, and what the average ticket was — no waiting for reports, no Excel, no phone calls.
+
+Built on GCP with a Medallion architecture and Star Schema. Runs automatically every night. No manual intervention required.
 
 ![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat&logo=python&logoColor=white)
 ![dbt](https://img.shields.io/badge/dbt-1.9-FF694B?style=flat&logo=dbt&logoColor=white)
@@ -59,7 +66,7 @@ Simulates daily sales data for 10 Santiago branches, transforms it through a Med
 
 **Silver** — Deduplicated, typed, and cleaned. Client names masked and RUTs hashed via `mask_pii()` macro — compliant with Chilean Ley 21.719.
 
-**Gold** — Star Schema optimized for analytics. Partitioned and clustered fact table joined to three dimension tables.
+**Gold** — Star Schema optimized for analytics. Fact table joined to three dimension tables.
 
 ## Data Quality
 
