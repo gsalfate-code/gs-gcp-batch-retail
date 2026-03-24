@@ -1,25 +1,25 @@
 # gs-gcp-batch-retail
 
-## The Problem
+## El Problema
 
-Branch managers had no visibility into daily sales until the following day. Decisions on replenishment, promotions, and staff allocation were made with yesterday's data — or older, if the report arrived late. With 10 branches across Santiago generating hundreds of transactions daily, the gap between what happened and what was known was always at least 24 hours.
+Los encargados de cada sucursal no tenían visibilidad de las ventas del día hasta el día siguiente. Las decisiones de reposición, promociones y asignación de personal se tomaban con datos de ayer — o de hace dos días si el reporte llegaba tarde. Con 10 sucursales en Santiago generando cientos de transacciones diarias, la brecha entre lo que ocurría y lo que se sabía era siempre de al menos 24 horas.
 
-## The Solution
+## La Solución
 
-A pipeline that consolidates sales from all 10 branches every night and delivers them to a dashboard by 6 AM. The store manager opens it and instantly sees how much each branch sold, which categories led, and what the average ticket was — no waiting for reports, no Excel, no phone calls.
+Un pipeline que consolida las ventas de las 10 sucursales cada noche y las entrega en un dashboard a las 6 AM. El gerente lo abre y ve en segundos cuánto vendió cada sucursal, qué categorías lideraron y cuál fue el ticket promedio — sin esperar reportes, sin Excel, sin llamar a nadie.
 
-Built on GCP with a Medallion architecture and Star Schema. Runs automatically every night. No manual intervention required.
+Construido sobre GCP con arquitectura Medallion y Star Schema. Corre automáticamente cada noche. Sin intervención manual.
 
 ![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat&logo=python&logoColor=white)
 ![dbt](https://img.shields.io/badge/dbt-1.9-FF694B?style=flat&logo=dbt&logoColor=white)
 ![BigQuery](https://img.shields.io/badge/BigQuery-GCP-4285F4?style=flat&logo=googlebigquery&logoColor=white)
 ![CD](https://github.com/gsalfate-code/gs-gcp-batch-retail/actions/workflows/cd.yml/badge.svg)
 
-**[→ Live Dashboard](https://lookerstudio.google.com/reporting/4f604ddb-b113-45b1-8f53-f900b24261f3)** — updated daily at 02:00 AM Santiago time.
+**[→ Dashboard en Vivo](https://lookerstudio.google.com/reporting/4f604ddb-b113-45b1-8f53-f900b24261f3)** — actualizado diariamente a las 02:00 AM hora Santiago.
 
 ---
 
-## Architecture
+## Arquitectura
 
     Cloud Scheduler (02:00 AM)
             │
@@ -48,63 +48,63 @@ Built on GCP with a Medallion architecture and Star Schema. Runs automatically e
                             ▼
                    Looker Studio Dashboard
 
-## Tech Stack
+## Stack Tecnológico
 
-| Layer | Technology |
+| Capa | Tecnología |
 |---|---|
-| Ingestion | Python 3.11 · Faker es_CL · PyArrow |
-| Storage | Google Cloud Storage · Parquet |
+| Ingesta | Python 3.11 · Faker es_CL · PyArrow |
+| Almacenamiento | Google Cloud Storage · Parquet |
 | Warehouse | BigQuery · External Tables |
-| Transformation | dbt 1.9 · dbt_utils |
-| Orchestration | Cloud Scheduler · Cloud Functions |
+| Transformación | dbt 1.9 · dbt_utils |
+| Orquestación | Cloud Scheduler · Cloud Functions |
 | CI/CD | GitHub Actions |
-| Visualization | Looker Studio |
+| Visualización | Looker Studio |
 
 ## Pipeline
 
-**Bronze** — External Table pointing to GCS. Raw data, no transformations. PII visible only at this layer.
+**Bronze** — External Table sobre GCS. Datos crudos sin transformaciones. PII visible solo en esta capa.
 
-**Silver** — Deduplicated, typed, and cleaned. Client names masked and RUTs hashed via `mask_pii()` macro — compliant with Chilean Ley 21.719.
+**Silver** — Deduplicado, tipado y limpio. Nombres de clientes enmascarados y RUTs hasheados con macro `mask_pii()` — cumplimiento Ley 21.719.
 
-**Gold** — Star Schema optimized for analytics. Fact table joined to three dimension tables.
+**Gold** — Star Schema optimizado para analytics. Tabla de hechos unida a tres dimensiones.
 
-## Data Quality
+## Calidad de Datos
 
-32 dbt tests across all layers — `not_null`, `unique`, `accepted_values`, and `relationships` between fact and dimensions. Pipeline stops automatically if any test fails.
+32 tests dbt en todas las capas — `not_null`, `unique`, `accepted_values` y `relationships` entre fact y dimensiones. El pipeline se detiene automáticamente si algún test falla.
 
-## How to Run
+## Cómo Ejecutar
 
-    # Generate and upload daily data
+    # Generar y subir datos diarios
     python ingestion/simulator.py
 
-    # Run transformations
+    # Ejecutar transformaciones
     cd dbt
     dbt run --target dev
     dbt test --target dev
 
-## Project Structure
+## Estructura del Proyecto
 
     gs-gcp-batch-retail/
     ├── ingestion/
-    │   ├── main.py          # Cloud Functions entry point
-    │   ├── simulator.py     # Daily sales data generator
+    │   ├── main.py          # Entry point Cloud Functions
+    │   ├── simulator.py     # Generador de ventas diarias
     │   └── requirements.txt
     ├── dbt/
     │   ├── models/
-    │   │   ├── bronze/      # Raw view over External Table
-    │   │   ├── silver/      # Cleaned, PII masked
+    │   │   ├── bronze/      # Vista sobre External Table
+    │   │   ├── silver/      # Limpio, PII enmascarado
     │   │   └── gold/        # Star Schema
     │   └── macros/
-    │       └── mask_pii.sql # Ley 21.719 compliance
+    │       └── mask_pii.sql # Cumplimiento Ley 21.719
     ├── docs/
     │   ├── adr/             # Architecture Decision Records
-    │   └── runbooks/        # Operational procedures
+    │   └── runbooks/        # Procedimientos operacionales
     └── .github/workflows/
-        ├── ci.yml           # dbt tests on pull requests
-        └── cd.yml           # dbt prod + deploy on schedule
+        ├── ci.yml           # dbt tests en pull requests
+        └── cd.yml           # dbt prod + deploy en schedule
 
-## Key Decisions
+## Decisiones de Arquitectura
 
 - [ADR-001](docs/adr/ADR-001-star-schema-vs-data-vault.md) — Star Schema vs Data Vault
 - [ADR-002](docs/adr/ADR-002-cloud-functions-vs-cloud-run.md) — Cloud Functions vs Cloud Run
-- [ADR-003](docs/adr/ADR-003-console-vs-terraform.md) — Console vs Terraform
+- [ADR-003](docs/adr/ADR-003-console-vs-terraform.md) — Consola vs Terraform
